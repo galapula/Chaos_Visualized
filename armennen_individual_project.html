@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+
+<head><meta charset="utf-8">
+<title>
+The Chaos Theory</title>
+</head>
+
+<body onload="draw()" id="body">
+<h1 style="text-align: center; font-family: 'Helvetica Neue', Helvetica, sans-serif; font-size: 42px;">
+  The Chaos Theory
+</h1>
+</hr>
+<br />&nbsp;
+</body>
+
+<div id="graph">
+<script>
+
+
+var scale = 600;
+
+function draw() { //some setup
+  // document.getElementById("canvas").style.background="#FFFFFF"
+  canvas = document.getElementById("canvas");
+  ctx = canvas.getContext("2d");
+  //   canvas.height = scale*((Math.sqrt(2)-1)*2+1)+2
+  // canvas.width = scale*((Math.sqrt(2)-1)*2+1)+2
+  canvas.width = scale*1+2
+  canvas.height = scale*1+2
+  canvas.addEventListener("click", function(){going=!going; if(going)tick()}, false);
+  //canvas.addEventListener("click", function(){going=!going; if(going)tick()}, false);
+  document.addEventListener("keypress", keyh, false)
+  this.ctx.strokeStyle ="#FFFF33"
+
+  // document.getElementById('compare').checkbox=false
+
+
+
+
+  // alert(compared)
+  //ctx.fillRect(0, 0, canvas.width, canvas.height)
+  //ctx.rect(0,0, canvas.width, canvas.height);
+  // ctx.fillstyle="rgb(127,0,0)"
+  // ctx.fill();
+  // ctx.fillStyle="black"
+  // var compared;
+
+  //compared=false;
+
+  //ctx.fillStyle="rgb(127,0,0)"
+  origin = [0.5,0.5]
+  //ctx.strokeStyle = "rgb(127,0,0)"
+  ctx.lineWidth = 2.5
+  document.getElementById('button').addEventListener("click", function(){going=false; setTimeout(button, ticklen*2)}, false);
+
+
+  //alert(canvas.toDataURL())
+  //tick()
+  setup()
+}
+
+
+
+pi = Math.PI
+cos = Math.cos
+sin = Math.sin
+sq = function (x){return x*x}
+var ang1
+var ang2
+var v1
+var l = 1/4  //length NEED TO MAKE THIS TWO LENGTHS
+var m //mass   NEED TO MAKE THIS TWO MASSES
+var g //gravity
+function ran_color() {
+    var letters = 'ABCDE'.split('');
+    var color = '#';
+    for (var i=0; i<3; i++ ) {
+        color += letters[Math.floor(Math.random() * letters.length)];
+    }
+    return color;
+}
+
+function rando_color(){
+  var ren
+  ren=ran_color()
+
+  // if(compared){
+  //   ren= ran_color()
+  // }
+  // else{
+  //   ren="rgb(127,0,0)"
+  // }
+  return ren
+}
+
+
+
+var trace = true;
+
+function a1(t1, t2, v1, v2) { //acceleration
+  return (-g * 3 * m * sin(t1) - m * g * sin(t1 - 2*t2) - 2 *sin(t1 - t2) * m * (sq(v2) * l + sq(v1) * l * cos(t1 - t2) ) ) / (l * (3 * m - m * cos(2 * t1 - 2 * t2) ) )
+}
+function a2(t1, t2, v1, v2) {
+  return (2 * sin(t1 - t2) * (sq(v1) * l * 2 * m + g * 2 * m * cos(t1) + sq(v2) * l * m * cos(t1 - t2) ) ) / (l * (3 * m - m * cos(2 * t1 - 2 * t2) ) )
+}
+var tl = .0001
+var ticklen = 5
+var drawEvery = 200  //or 100 in other html
+var ticks = 0
+var going = true;
+var intmed = true;
+var inttick = 10;
+
+
+function setup() {
+
+  // idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+  ctx.clearRect(-scale,-scale,3*scale,3*scale)
+  idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+  path = []
+  tpoint = 0
+  ticks = 0
+  ang1 = Math.random()*Math.PI*2
+  // alert(ang1);
+  ang2 = Math.random()*Math.PI*2.5
+  v1 = (Math.random()-.5)*10
+  v2 = (Math.random()-.5)*10
+  m = 1
+  g = 9.87
+  //rando_color();
+  document.getElementById('ang1').value=ang1
+  document.getElementById('ang2').value=ang2
+  document.getElementById('v1').value=v1
+  document.getElementById('v2').value=v2
+  document.getElementById('m').value=m
+  document.getElementById('g').value=g
+  document.getElementById('drawEvery').value=drawEvery
+
+  // compared=document.getElementById('compare').checkbox
+
+
+  // alert(compared)
+
+  // canvas.addEventListener("compare", compare, )
+
+  if(going) {
+    going=false
+    setTimeout(function() {going=true; tick()}, ticklen*2)
+  }
+  else {
+    p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+    p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+    path.push(p2)
+    renderCompare()
+    // renderCompare()
+    // if(compared){
+
+    //   renderCompare()
+    // }
+    // else{
+
+    // render()
+    // }
+  }
+}
+function button() {
+  //alert('here')
+  // if(!!comparing){
+
+    path = []
+    tpoint = 0
+    ticks = 0
+    ang1=eval(document.getElementById('ang1').value)
+    ang2=eval(document.getElementById('ang2').value)
+    v1=eval(document.getElementById('v1').value)
+    v2=eval(document.getElementById('v2').value)
+    m=eval(document.getElementById('m').value)
+    g=eval(document.getElementById('g').value)
+    drawEvery=document.getElementById('drawEvery').value*1
+    trace=document.getElementById('trace').checked
+    compared=document.getElementById('compare').checkbox
+
+
+    p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+    p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+    path.push(p2)
+    //going=true
+    //tick()
+    // ctx.clearRect(-scale,-scale,3*scale,3*scale)
+    renderCompare()
+    // renderCompare();
+//     if (compared){
+//       renderCompare();
+//     }
+//     else{
+//       ctx.clearRect(-scale,-scale,3*scale,3*scale)
+//        idata = ctx.getImageData(0,0,canvas.width,canvas.height)
+//        ctx.strokeStyle =rando_color();
+//}       render()
+}
+    // if (compared){
+    //     // clear=canvas.addEventListener('click', function(clear()){going=!going; if(going)tick()}, false);
+    //     // ctx.clearRect(-scale,-scale,3*scale,3*scale)
+
+    //     //idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+    //     // ctx.clearRect(-scale,-scale,3*scale,3*scale)
+    //     p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+    //     p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+    //     path.push(p2)
+    //     renderCompare();
+
+    // }
+    // else{
+
+
+    // // ctx.clearRect(-scale,-scale,3*scale,3*scale)
+    // // idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+    // //ctx.strokeStyle=rando_color();
+
+    // // clear=canvas.addEventListener('click', function(clear()){going=!going; if(going)tick()}, false);
+
+    // p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+    // p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+    // path.push(p2)
+    // //going=true
+    // //tick()
+
+    // render()
+    // }
+
+
+
+
+// function compare() {
+//   //alert('here')
+//   //commented out stuff that redraws
+//   // comparing=!comparing;
+//   // ctx.clearRect(-scale,-scale,3*scale,3*scale)
+//   // idata = ctx.getImageData(0,0,canvas.width,canvas.height);
+//   path = []
+//   tpoint = 0
+//   ticks = 0
+//   // console.log("JOE IN COMPARE");
+//   ang1=eval(document.getElementById('ang1').value)
+//   ang2=eval(document.getElementById('ang2').value)
+//   v1=eval(document.getElementById('v1').value)
+//   v2=eval(document.getElementById('v2').value)
+//   m=eval(document.getElementById('m').value)
+//   g=eval(document.getElementById('g').value)
+//   drawEvery=document.getElementById('drawEvery').value*1
+//   compared=document.getElementById('compare').checked
+
+//   p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+//   p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+//   path.push(p2)
+//   //going=true
+//   //tick()
+//   renderCompare()
+// }
+function keyh(e){
+  if(String.fromCharCode(e.which)=="r") {
+    counter=0
+    setup()
+  }
+}
+function tick() {
+  tv1 = v1 + tl * a1(ang1, ang2, v1, v2)
+  tv2 = v2 + tl * a2(ang1, ang2, v1, v2)
+
+  ang1 += tl * v1
+  ang2 += tl * v2
+
+  v1 = tv1* 0.9999999999
+  v2 = tv2 *0.9999999999
+
+  var p1,p2
+  if(intmed && (ticks%inttick==0) ) {
+    p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+    p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+    path.push(p2)
+  }
+
+  if(!going) return;
+  if((ticks++)%drawEvery == 0) {
+    renderCompare()
+    setTimeout(tick, ticklen)
+  }
+  else tick()
+}
+var tracelim = 100
+var tpoints = 0;
+var idata;
+var path = []
+var origin = [.5,.5]
+var tracelim = 100
+var tpoints = 0;
+var idata;
+var path = []
+var origin = [0,0]
+function render() {
+  //deb(ang1 + "<br>" + ang2 + "<br><br>" + v1 + "<br>" + v2)
+  // if(!!comparing){
+    ctx.clearRect(-scale,-scale,3*scale,3*scale)
+    ctx.putImageData(idata,0,0);
+    alert("here")
+    // ctx.getImageData(0,0,canvas.width,canvas.height);
+
+    // alert(typeof(path))
+    p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+    p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+    // ctx.beginPath()
+    // // this.pathStyle="rgb(0,225,225)"
+    // ctx.strokeStyle=rando_color();
+    // ctx.stroke()
+    if(!intmed) {
+      path.push(p2)
+
+
+    }
+
+    // if(trace) {
+
+    // ctx.putImageData(0,0,idata);
+    // ctx.putImageData(idata,0,0);
+    // ctx.getImageData(0,0,canvas.width,canvas.height);
+
+    if(path.length>1) {
+      ctx.save();
+      ctx.lineWidth=1/2;
+      rando_color();
+      //ctx.pathStyle="rgb(0,225,225)"
+      ctx.beginPath()
+      ctx.moveTo(path[0][0]*scale, path[0][1]*scale)
+      for(var i=1; i<path.length; i++) ctx.lineTo(path[i][0]*scale, path[i][1]*scale)
+      //deb(path.join("<br>"))
+      //ctx.stroke()
+      //this.ctx.strokeStyle="rgb(0,225,225)"
+
+      ctx.closePath()
+      ctx.stroke()
+      ctx.restore()
+    }
+    //   if(compared==false){
+    //   ctx.strokeStyle = rando_color()}
+    //   ctx.stroke();
+    //   ctx.restore()
+    // }
+
+    if(!intmed) {
+      if((tpoints++)%tracelim == 0) {  //massive speedup!
+        idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        path = [path.pop()]
+      }
+    }
+    else {
+      if((ticks)% (tracelim/100) == 0) {
+        idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        path = [path.pop()]
+      }
+
+
+      else {
+        ctx.clearRect(-scale,-scale,3*scale,3*scale)
+      }
+
+    }
+    ctx.beginPath();
+    ctx.moveTo(origin[0]*scale, origin[1]*scale);
+    ctx.lineTo(p1[0]*scale, p1[1]*scale);
+    ctx.lineTo(p2[0]*scale, p2[1]*scale);
+    this.ctx.strokeStyle=rando_color();
+    ctx.stroke()
+    ctx.closePath()
+}
+
+
+
+
+
+function renderCompare() {
+  // if(!comparing){
+
+  // var idata_old = idata;
+  p1 = [ origin[1] + l*sin(ang1), origin[0] + l*cos(ang1) ]
+  p2 = [ p1[0] + l*sin(ang2), p1[1] + l*cos(ang2) ]
+  //ctx.pathStyle=rando_color
+  if(!intmed) {
+    path.push(p2)
+  }
+
+  // if(trace) {
+    // ctx.clearRect(-scale,-scale,3*scale,3*scale)
+    //ctx.putImageData(idata_old, 0, 0)
+    ctx.clearRect(-scale,-scale,3*scale,3*scale)
+    //ctx.putImageData(0,0,idata);
+    ctx.putImageData(idata,0,0);
+    //need to set the bob and lines to the background color.
+    if(path.length>1) {
+      ctx.save();
+      ctx.lineWidth=1/2;
+      //ctx.strokeStyle="rgb(255, 0, 0)"
+      ctx.beginPath()
+      ctx.moveTo(path[0][0]*scale, path[0][1]*scale)
+      for(var i=1; i<path.length; i++) ctx.lineTo(path[i][0]*scale, path[i][1]*scale)
+      ctx.stroke()
+      //this.pathStyle=rando_color();
+      //ctx.pathWidth=9/10;
+      // ctx.closePath()
+      // ctx.restore()
+      ctx.closePath()
+      //this.ctx.strokeStyle = rando_color();
+      ctx.stroke();
+      ctx.restore()
+    }
+
+    if(!intmed) {
+      if((tpoints++)%tracelim == 0) {  //massive speedup!
+        idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        path = [path.pop()]
+      }
+    }
+    else {
+      if((ticks)% (tracelim/100) == 0) {
+        idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        path = [path.pop()]
+      }
+    else{
+      ctx.clearRect(-scale,-scale,3*scale,3*scale)
+    }
+
+  }
+
+
+    ctx.beginPath();
+    ctx.moveTo(origin[0]*scale, origin[1]*scale);
+    ctx.lineTo(p1[0]*scale, p1[1]*scale);
+    ctx.lineTo(p2[0]*scale, p2[1]*scale);
+    ctx.stroke()
+    ctx.closePath()
+  //comparing=!!comparing;
+  // compared=false;
+}
+
+function deb(s) {
+  document.getElementById("a").innerHTML = s;
+}
+
+//  function jsFunction(){
+//   var temp = document.getElementById("compare");
+//     document.getElementById(temp).checked=true;
+//     var compared
+//     return compared=true
+// }
+
+
+// function handleClick(cb) {
+//   display(checkbox);
+
+
+
+
+// }
+counter=0
+function handleChange() {
+  counter+=1
+
+  if (counter==1){
+  ctx.strokeStyle="rgb(127,0,0)"
+  ctx.stroke()}
+  if (counter==2){
+    ctx.strokeStyle="rgb(0,225,225)"
+    ctx.stroke()}
+  if (counter>2){
+    ctx.strokeStyle=rando_color()
+    ctx.stroke()}
+
+
+
+
+
+
+
+}
+// function isCompare(compared){
+//   if (compared==true){
+//     setup()
+//   }
+//   if (compared==false){
+//     }
+//   }
+
+
+
+</script>
+</div>
+<div style="text-align: center;">
+<img src="http://www.cinema52.com/2013/wp-content/uploads/2013/05/MalcolmExperiment2.png" style="width:250x;height:175px;"  href="http://www.cinema52.com/2013/wp-content/uploads/2013/05/MalcolmExperiment2.png">
+<img src="https://cdn.shopify.com/s/files/1/0244/7479/files/chaos.jpg?12318073274335866888" style="width:250x;height:175px;" href= "https://cdn.shopify.com/s/files/1/0244/7479/files/chaos.jpg?12318073274335866888">
+<img src= "https://cdn.shopify.com/s/files/1/0244/7479/files/dx.jpg?12318073274335866888" style="wwidth:250x;height:175px;" href= "width:200x;height:125px;">
+</div>
+<br />&nbsp;
+<h2>Double Pendulum Mechanics</h2>
+<div id="pendulum">
+<div style = "font-family: Times, 'Wing Dings', serif; line-height: 25px;">
+<p> "Chaos: When the present determines the future, but the approximate present does not approximately determine the future."- Edward Lorenz. </p>
+
+ <div style= "font-family: Times, 'Times New Roman', serif; line-height: 20px;">
+    <p>Chaos suggests a system (perhaps even of infinite complexity) behind seemingly random outcomes.  An important characteristic of chaotic systems is their extreme sensitivity to initial conditions. Even for a deterministic system (with no random elements), this high sensitivity to initial conditions is what causes the impossibility of long term prediction of the system's behavior.  A slight change in the initial conditions yields completely different and diverging end results.
+    </p>
+    <p>
+        Many chaotic systems are often times misunderstood as simply random prodcutions and there is an important disctinction betwen the two types of systems. In a chaotic system even though there are an infinite range of outcomes, they are all dependent on the starting conditions- meaning that hypothetically given the same exact starting conditions, the chaotic system would produce the same outcome (though this isn't usually an easy task due to confluence of uncontrollable and unperceived factors). Conversely, a random system is not deterministic like the chaotic systems as they produce different results even when initial conditions are replicated. We can learn a chaotic system, and to a degree, predict the system's outcomes like we do with the weather, for example, but we would not be capable of producing any kind of meaningful prediction for random states.
+    </p>
+
+<img src="http://www.maths.surrey.ac.uk/explore/michaelspages/dp/doublediag.jpg" style="width:400x;height:325px;"  href="http://www.maths.surrey.ac.uk/explore/michaelspages/dp/doublediag.jpg">
+<p>
+  The double pendulum is a perfect example of a chaotic system as its motion is highly dependent on its starting position where even miniscule difference between two starting positions can lead to vastly different pendulum paths. The double pendulum, like all chaotic systems, are considered to be dynamical systems where their positions evolves as time continues- which we have traced along the tip of the pendulum.
+    <br />&nbsp;
+</p>
+<h2>Example of Initial State Differences</h2>
+<img src="http://45.media.tumblr.com/ee2dddc9163caf566f2f747e2c05edc2/tumblr_n5r8wbYqFr1tzs5dao1_1280.gif" style="width:400x;height:325px;" href="http://45.media.tumblr.com/ee2dddc9163caf566f2f747e2c05edc2/tumblr_n5r8wbYqFr1tzs5dao1_1280.gif">
+<p>
+  For the demo below try an experiment by shifting whatever initial conditions to something very slightly different. It might take a few moments but you should be able to see a divergence developing in the pendulum's trajectory, to the point where it's completely different than before. This is a great example of how chaotic systems move towards unpredictability as time passes though we might have some measure of confidence for the initial returns.
+</p>
+</div>
+</div>
+<div id="Lorenz">
+<div>
+<p></p>
+<h2>Chaos Vs. Pure Randomness Over Time</h2>
+<img src= "http://i1.wp.com/geoffboeing.com/wp-content/uploads/2015/03/poincare-plots-chaos-vs-random.png" style= "width: 700px; height: 350px">
+<a href="http://i1.wp.com/geoffboeing.com/wp-content/uploads/2015/03/poincare-plots-chaos-vs-random.png"> </a>   <br />&nbsp;    <br />&nbsp;    <br />&nbsp;    <br />&nbsp;
+<p>
+When looking at the traced lines over time it is difficult to derive any sort of pattern in a 2 dimensional plot; however, when graphing a double pendulum system (or other chaotic systems) over time within a 3 dimensional Poincare plot, we can see a specific, deterministic pattern for the seeming random movements.
+</p>
+
+
+<p>
+Both of these plots (from www.geoffboeing.com) examined a dataset of population growth and then examined the results as time series data points. Both of these plots (called poincare plots or logistic maps) explore chaotic expressions versus random noise data and provides a strong contrast between the two types of systems as the chaotic systems forms separate curves for each of the rates while the random points are not constrained within any formation. The chaotic curves shown in Boeing's analysis are remarkably entirely unique amongst all of the potential curves and never repeat a value twice as it ceaselessly loops through different population values. Looking at this same information as a time series line graph, the chaotic expression seems very similar to randomness and is similar to experiencing the results of a real life chaotic system and attributing it to randomness, luck or a blessing/curse. Using poincare plots we can see the deterministic quality of chaotic expression as its pattern is drawn toward invisible attractors, called Lorenz attractors.
+</p>
+
+</div>
+<br />&nbsp;
+
+<div style= "position: relative"style="font-family: Times, 'Times New Roman', serif; line-height: 20px;" class= "Lorenz"/>
+<p>
+  An attractor is the value, or set of values, that the system settles toward over time. In the example in the website above, adjusting the population growth to a number over 3.5 makes the model a chaotic system where the system oscillates wildly indefinitely and never repeats itself.  As each chaotic curve never repeats any point and its structure has a fractal form, meaning the same patterns exist at every scale no matter how much you zoom into it.
+</p>
+
+<br />&nbsp;
+<br />&nbsp;
+<iframe
+
+ src="https://plot.ly/~joeklein35/28/lorenz-attractor/"
+ width="75%" height="300"
+  <p>
+    <a href="https://plot.ly/~joeklein35/28/lorenz-attractor/">
+      Fallback link for browsers that, unlikely, don't support frames
+    </a>
+    <br />&nbsp;
+    <br />&nbsp;
+    <br />&nbsp;
+    <br />&nbsp;
+    <br />&nbsp;
+    <br />&nbsp;
+    <br />&nbsp;
+  </p>
+
+</iframe>
+  <p>
+      <br />&nbsp;
+          <br />&nbsp;
+              <br />&nbsp;
+                  <br />&nbsp;
+
+    This is an example of a Lorenz Attractor over a graph created with plotly. You can adjust the graph's perspective by zooming or panning or you can mouse over the chaotic arc at any point to see the data used.
+          <br />&nbsp;
+          <br />&nbsp;
+              <br />&nbsp;
+                  <br />&nbsp;
+  </p>
+</div>
+
+</div>
+
+
+<!--     <input id="ang1" size="5"> Initial angle 1<br> -->
+
+<canvas id="canvas" style="background: black;">
+  <style>
+    body{vertical-align:center;}
+          #lorenz {
+    position: absolute;
+    bottom: 0;
+    left: 0px;}
+    #pendulum{
+      position: relative;
+      top:0;
+    }
+    #graph{
+      position: relative;
+      top:1;
+    }
+    #body{
+      margin-left: 40px;
+      margin-right: 40px;
+      background-color: #fffce2
+    }
+s
+    canvas {   height:45%; width: 45%; display: inline; background: black; display: block; border: 1px solid black; }/*{border: 1px solid black;  background-color: white;}*/
+      .sidebarinput {text-align: right;  vertical-align: : left; border: 1px solid green;background-color: red;  caption-side: left;}
+    .p{text-align:left}
+    iframe
+    {
+    margin:0;
+    padding:15px;
+    border:none;
+    overflow:hidden;
+      }
+      img
+      {
+        margin-left: 20px;
+
+      }
+
+
+
+
+/*    body { margin: 0; background: #3e3e3e; color: #fff; }*//*<!-- onClick="handleClick(cb)" -->*/
+/*        #main { background: #000; margin: 30px auto auto; display: block; }*/
+
+      </style>
+  </canvas>
+<br><br>
+<form>
+<div class="sidebar">
+      <p>Click on the graph to start/stop. R randomizes all the variables.</p>
+      <p>Change the initial conditions below to see whether or not you can make the pendulum chaotic. </p>
+      <p><input type="button" value="Apply Changes" id="button"/></p>
+      <label for ="compare" "Compare Against Previous Model?" /></label>
+     <p> <input id="compare" value="Switch Color" name="compare" type="button" onclick="handleChange()" ></p>
+      <p><label for="ang1">&theta;<sub>1</sub></label> <input type="number" id="ang1"/></p>
+      <p><label for="v1">&omega;<sub>1</sub></label> <input type="number" id="v1"/></p>
+      <p><label for="m">Mass</label> <input type="number" id="m"/></p>
+      <p><label for="ang2">&theta;<sub>2</sub></label> <input type="number" id="ang2"/></p>
+      <p><label for="v2">&omega;<sub>2</sub></label> <input type="number" id="v2"/></p>
+      <p><label for="g">Gravity</label> <input type="number" id="g"/></p>
+      <p><label for="drawEvery">Number of Series </label> <input type="number" id="drawEvery"/></p>
+      <p><input hidden type="number" id="trace"></p>
+    </div>
+    <p id="a"></p>
+
+</form></body></html>
